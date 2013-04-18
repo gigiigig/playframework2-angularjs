@@ -13,20 +13,28 @@ import Database.threadLocalSession
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import scala.util.{Failure, Success, Try}
 
-object Application extends Controller {
+object TaskController extends Controller {
 
-  implicit val worksJson: OWrites[Task] = (
+  implicit val writeTask: OWrites[Task] = (
     (__ \ "id").write[Option[Int]] ~
       (__ \ "name").write[String] ~
       (__ \ "startDate").write[Date]
     )(unlift(Task.unapply))
 
+  implicit val readTask = (
+    (__ \ "id").read[Option[Int]] ~
+      (__ \ "name").read[String] ~
+      (__ \ "startDate").read[Date]
+    )(Task)
+
+
   def index = Action {
     Ok(views.html.index("Simple timer with Play 2"))
   }
 
-  def rest = Action {
+  def list = Action {
 
     Database.forDataSource(DB.getDataSource()) withSession {
 
@@ -38,6 +46,23 @@ object Application extends Controller {
 
     }
 
+  }
+
+  def add = Action(parse.json) {
+    implicit request =>
+      request.body.validate[Task].fold(
+        valid = {
+          t =>
+            Database.forDataSource(DB.getDataSource()) withSession {
+              Try(Tasks.insert(t))match {
+                case Success(t) =>  Ok(s"inserted ${t}")
+                case Failure(e) =>  BadRequest("Detected error:" + (e))
+              }
+            }
+
+        },
+        invalid = (e => BadRequest("Detected error:" + JsError.toFlatJson(e)))
+      )
   }
 
   //  def time = Action {

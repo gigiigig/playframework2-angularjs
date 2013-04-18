@@ -3,9 +3,9 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
-GET     /rest                       controllers.Application.rest
-#GET     /time                       controllers.Application.time
+GET     /                           controllers.TaskController.index
+GET     /task/all                   controllers.TaskController.list
+POST    /task/                      controllers.TaskController.add
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

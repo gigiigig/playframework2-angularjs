@@ -37,12 +37,18 @@ object Global extends GlobalSettings {
 
       def timeMillis = Calendar.getInstance().getTimeInMillis
 
-      Tasks.insertAll(
-        (Task(None, "task 1", new Date(timeMillis))),
-        (Task(None, "task 2", new Date(timeMillis))),
-        (Task(None, "task 3", new Date(timeMillis)))
-      )
+      Query(Query(Tasks).length).first match {
 
+        case 0 =>
+          Tasks.insertAll(
+            (Task(None, "task 1", new Date(timeMillis))),
+            (Task(None, "task 2", new Date(timeMillis))),
+            (Task(None, "task 3", new Date(timeMillis)))
+          )
+
+        case _ => Logger.logger.debug("tasks already exist")
+
+      }
     }
   }
 
