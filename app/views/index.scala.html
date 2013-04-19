@@ -8,6 +8,15 @@
   <!--<p>{{time}}</p>-->
 <!--</div>-->
 <div ng-controller="TaskController">
+  <div>
+      <p>{{message}}</p>
+  </div>
+  <div>
+      <p>name : </p>
+      <input type="text" ng-model="task.name">
+      <input type="number" ng-model="task.startDate">
+      <button ng-click="add()">Add</button>
+  </div>
   <div ng-repeat="task in tasks">
       <p>{{task.name}}</p>
       <p>{{task.id}}</p>

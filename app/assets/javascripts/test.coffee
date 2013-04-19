@@ -7,14 +7,19 @@ window.TimeController = ($scope , $timeout) ->
     ), 1000)
 
 window.TaskController = ($scope , $http) ->
-  $http.get("/task/all").success((data) ->
-    $scope.tasks = data
-  ).error((data) ->
-    alert data
-  )
+  updateList = ->
+    $http.get("/task/all").success((data) ->
+      $scope.tasks = data
+    )
+
+  updateList()
 
   $scope.add = ->
-
+    $scope.task.id = ""
+    $http.post("/task/" , $scope.task).success( ->
+      $scope.message = "saved"
+      updateList()
+    )
 
 
 getTime = ($scope) ->

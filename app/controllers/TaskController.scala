@@ -43,7 +43,7 @@ object TaskController extends Controller {
         t <- Tasks
       } yield (t)
 
-      Ok(Json.toJson(result.list()))
+      Ok(Json.toJson(result.sortBy(t=> t.id.desc).list()))
 
     }
 
