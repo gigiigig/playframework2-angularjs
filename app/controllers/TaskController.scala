@@ -14,6 +14,7 @@ import Database.threadLocalSession
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import scala.util.{Failure, Success, Try}
+import slick.lifted
 
 object TaskController extends Controller {
 
@@ -54,9 +55,9 @@ object TaskController extends Controller {
         valid = {
           t =>
             Database.forDataSource(DB.getDataSource()) withSession {
-              Try(Tasks.insert(t))match {
-                case Success(t) =>  Ok(s"inserted ${t}")
-                case Failure(e) =>  BadRequest("Detected error:" + (e))
+              Try(Tasks.insert(t)) match {
+                case Success(t) => Ok(s"inserted ${t}")
+                case Failure(e) => BadRequest("Detected error:" + (e))
               }
             }
 
@@ -65,11 +66,5 @@ object TaskController extends Controller {
       )
   }
 
-  //  def time = Action {
-  //    val df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss")
-  //    Ok(df.format(new Date()))
-  //  }
-
-  case class Work(name: String, price: Float, date: Date)
 
 }

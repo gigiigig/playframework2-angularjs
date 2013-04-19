@@ -4,8 +4,14 @@
 <div>
   @message
 </div>
-<div ng-controller="TimeController">
-  <p>{{time}}</p>
+<!--<div ng-controller="TimeController">-->
+  <!--<p>{{time}}</p>-->
+<!--</div>-->
+<div ng-controller="TaskController">
+  <div ng-repeat="task in tasks">
+      <p>{{task.name}}</p>
+      <p>{{task.id}}</p>
+  </div>
 </div>
 
 }
