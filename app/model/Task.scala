@@ -2,7 +2,8 @@ package model
 
 import scala.slick.driver.H2Driver.simple._
 import Database.threadLocalSession
-import java.sql.Date
+import java.sql.{Time, Date}
+import java.util.Calendar
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,11 +18,11 @@ object Tasks extends Table[Task]("tasks") {
 
   def name = column[String]("name")
 
-  def startDate = column[Date]("start_date")
+  def startDate = column[Time]("start_date")
 
   def * = id.? ~ name ~ startDate <> (Task , Task.unapply(_))
 
 }
 
-case class Task(id: Option[Int], name: String, startDate: Date)
+case class Task(id: Option[Int], name: String, startDate: Time)
 

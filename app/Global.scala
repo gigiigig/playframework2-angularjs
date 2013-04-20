@@ -1,5 +1,6 @@
-import java.sql.Date
+import java.sql.{Time, Date}
 import java.util.Calendar
+import misc.Util
 import model.{Tasks, Task}
 import play.api.db.DB
 import play.api._
@@ -9,6 +10,7 @@ import util.{Failure, Try, Success}
 
 import scala.slick.driver.H2Driver.simple._
 import play.api.Play.current
+import Util._
 
 // Use the implicit threadLocalSession
 
@@ -25,25 +27,24 @@ object Global extends GlobalSettings {
   override def onStart(app: Application) {
 
     // Connect to the database and execute the following block within a session
-    Database.forDataSource(DB.getDataSource()) withSession {
+    dataBase withSession {
       // The session is never named explicitly. It is bound to the current
       // thread as the threadLocalSession that we imported
 
       // Create the tables, including primary and foreign keys
-      Try(Tasks.ddl) match {
+      Try(Tasks.ddl.create) match {
         case Success(tab) => Logger.logger.debug(s"database created ${tab}")
         case Failure(ex) => Logger.logger.warn(s"database creation error ${ex}")
       }
 
-      def timeMillis = Calendar.getInstance().getTimeInMillis
 
       Query(Query(Tasks).length).first match {
 
         case 0 =>
           Tasks.insertAll(
-            (Task(None, "task 1", new Date(timeMillis))),
-            (Task(None, "task 2", new Date(timeMillis))),
-            (Task(None, "task 3", new Date(timeMillis)))
+            (Task(None, "task 1", new Time(0))),
+            (Task(None, "task 2", new Time(0))),
+            (Task(None, "task 3", new Time(0)))
           )
 
         case _ => Logger.logger.debug("tasks already exist")
@@ -51,5 +52,8 @@ object Global extends GlobalSettings {
       }
     }
   }
+
+  def timeMillis = Calendar.getInstance().getTimeInMillis
+
 
 }

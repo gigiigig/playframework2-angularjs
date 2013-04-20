@@ -1,26 +1,33 @@
-@(message: String)
-
 @main("Our first play app") {
-<div>
-  @message
-</div>
 <!--<div ng-controller="TimeController">-->
-  <!--<p>{{time}}</p>-->
+<!--<p>{{time}}</p>-->
 <!--</div>-->
+
 <div ng-controller="TaskController">
-  <div>
-      <p>{{message}}</p>
-  </div>
-  <div>
-      <p>name : </p>
-      <input type="text" ng-model="task.name">
-      <input type="number" ng-model="task.startDate">
-      <button ng-click="add()">Add</button>
-  </div>
-  <div ng-repeat="task in tasks">
-      <p>{{task.name}}</p>
-      <p>{{task.id}}</p>
-  </div>
+
+    <div class="alert" ng-show="{message != null && message != ''}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{message}}
+    </div>
+
+    <div ng-repeat="task in tasks" class="row">
+        <p class="span4">{{task.name}}</p>
+
+        <p class="span4">{{task.startDate | timer}}</p>
+
+        <p class="span4">
+            <button ng-click="start(task)" class="btn btn-primary">Start</button>
+            <button ng-click="stop(task)" class="btn btn-warning">Stop</button>
+            <button ng-click="delete(task)" class="btn btn-danger">Delete</button>
+        </p>
+    </div>
+
+    <div class="row">
+        <p class="span1">name : </p>
+        <input class="span3" type="text" ng-model="task.name">
+        <button ng-click="add()" class="btn btn-primary">Add</button>
+    </div>
+
 </div>
 
 }
