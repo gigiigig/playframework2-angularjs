@@ -9,9 +9,11 @@ window.TaskController = ($scope , $http , $timeout) ->
 
   $scope.start = (task) ->
     task.running = true
+    $scope.update()
 
   $scope.stop = (task) ->
     task.running = false
+    $scope.update()
 
   $scope.add = ->
     $scope.update()
@@ -30,8 +32,10 @@ window.TaskController = ($scope , $http , $timeout) ->
     )
 
   $scope.update = (callback) ->
+    showLoader()
     $http.put("/task/" , $scope.tasks).success((data) ->
-      showMessage(data)
+      #showMessage(data)
+      hideLoader()
       if(callback)
         callback()
     )
@@ -109,3 +113,6 @@ showDeleteConfirm = (task,callback) ->
       callback: callback
     }
   );
+
+showLoader =  -> $("#loader").fadeIn()
+hideLoader =  -> $("#loader").fadeOut()

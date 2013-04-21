@@ -55,7 +55,7 @@ object TaskController extends Controller with Loggable {
           t =>
             dataBase withSession {
               Try(Tasks.insert(t)) match {
-                case Success(r) => Ok(s"Create new task ${t.name}")
+                case Success(r) => Ok(s"Created new task ${t.name}")
                 case Failure(e) => BadRequest("Detected error:" + (e))
               }
             }
