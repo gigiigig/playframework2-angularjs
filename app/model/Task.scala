@@ -2,8 +2,8 @@ package model
 
 import scala.slick.driver.H2Driver.simple._
 import Database.threadLocalSession
-import java.sql.{Time, Date}
-import java.util.Calendar
+import java.sql.Time
+import misc.Util._
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,7 +20,13 @@ object Tasks extends Table[Task]("tasks") {
 
   def startDate = column[Time]("start_date")
 
-  def * = id.? ~ name ~ startDate <> (Task , Task.unapply(_))
+  def * = id.? ~ name ~ startDate <>(Task, Task.unapply(_))
+
+  def count = {
+    dataBase withSession {
+      (for (t <- Tasks) yield t.length).first
+    }
+  }
 
 }
 

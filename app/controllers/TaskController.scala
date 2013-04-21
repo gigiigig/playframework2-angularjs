@@ -1,10 +1,8 @@
 package controllers
 
 import play.api._
-import db.DB
 import play.api.mvc._
 import model.{Tasks, Task}
-import slick.lifted.Query
 import java.sql.{Time, Date}
 import play.api.Play.current
 
@@ -14,12 +12,12 @@ import Database.threadLocalSession
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import scala.util.{Failure, Success, Try}
-import slick.lifted
 import java.util.Calendar
 
 import misc.Util._
+import misc.Loggable
 
-object TaskController extends Controller {
+object TaskController extends Controller with Loggable {
 
   def timeMillis = Calendar.getInstance().getTimeInMillis
 
@@ -30,9 +28,10 @@ object TaskController extends Controller {
       (__ \ "startDate").write[Time]
     )(unlift(Task.unapply))
 
-  implicit val readTask = (
-      (__ \ "name").read[String]
-    ).map(Task(None, _ , new Time(0)))
+  implicit val buildReadTask =
+    (((__ \ "id").read[Option[Int]] ~
+      (__ \ "name").read[String] ~
+      (__ \ "startDate").read[Int] tupled)).map(v => Task(v._1 , v._2 ,new Time(v._3)))
 
 
   def index = Action {
@@ -40,17 +39,12 @@ object TaskController extends Controller {
   }
 
   def list = Action {
-
     dataBase withSession {
-
       val result = for {
         t <- Tasks
       } yield (t)
-
       Ok(Json.toJson(result.sortBy(t => t.id.desc).list()))
-
     }
-
   }
 
   def add = Action(parse.json) {
@@ -58,7 +52,7 @@ object TaskController extends Controller {
       request.body.validate[Task].fold(
         valid = {
           t =>
-           dataBase withSession {
+            dataBase withSession {
               Try(Tasks.insert(t)) match {
                 case Success(t) => Ok(s"inserted ${t}")
                 case Failure(e) => BadRequest("Detected error:" + (e))
@@ -70,15 +64,35 @@ object TaskController extends Controller {
       )
   }
 
-  def delete(id: Integer) = Action {
+  def delete(id: Int) = Action {
     dataBase withSession {
-      val task = for {
-        t <- Tasks if t.id == id
-      } yield t
-
-      task.delete
+      (for (t <- Tasks if t.id === id) yield t).delete
+      Ok("")
     }
-    Ok("")
   }
+
+  def update = Action(parse.json) {
+    implicit request =>
+      request.body.validate[Seq[Task]].fold(
+        valid = {
+          tasks =>
+
+            dataBase withSession {
+              tasks.foreach {
+                task =>
+                  log.debug(s"task ${task.name} have time ${task.startDate}")
+                  (for (t <- Tasks if t.id === task.id) yield t.startDate).update(task.startDate)
+              }
+              Ok("Tasks Updated")
+            }
+
+        },
+        invalid = {
+          e =>
+            BadRequest
+        }
+      )
+  }
+
 
 }

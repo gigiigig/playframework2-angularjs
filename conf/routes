@@ -4,9 +4,10 @@
 
 # Home page
 GET     /                           controllers.TaskController.index
-GET     /task/all                   controllers.TaskController.list
+GET     /task/                      controllers.TaskController.list
 POST    /task/                      controllers.TaskController.add
-DELETE  /task/:id                   controllers.TaskController.delete(id: Integer)
+PUT     /task/                      controllers.TaskController.update
+DELETE  /task/:id                   controllers.TaskController.delete(id: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

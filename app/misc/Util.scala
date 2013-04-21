@@ -12,5 +12,5 @@ import play.api.Play.current
  * To change this template use File | Settings | File Templates.
  */
 object Util {
-  lazy val dataBase = Database.forDataSource(DB.getDataSource())
+  def dataBase = Database.forDataSource(DB.getDataSource())
 }

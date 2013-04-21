@@ -8,7 +8,7 @@ window.TimeController = ($scope , $timeout) ->
 
 window.TaskController = ($scope , $http , $timeout) ->
   updateList = ->
-    $http.get("/task/all").success((data) ->
+    $http.get("/task/").success((data) ->
       $scope.tasks = data
     )
 
@@ -27,10 +27,16 @@ window.TaskController = ($scope , $http , $timeout) ->
     task.started = false
 
   $scope.delete = (task) ->
-    $http.delete("/task/#{task.id}").success(->
+    $http.delete("/task/#{task.id}").success( ->
       $scope.message = "deleted task #{task.id}"
       updateList()
     )
+
+  $scope.update = ->
+    $http.put("/task/" , $scope.tasks).success((data) ->
+      $scope.message = data
+    )
+
 
   $timeout(increase = ->
     for t in $scope.tasks
