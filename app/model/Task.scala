@@ -20,7 +20,9 @@ object Tasks extends Table[Task]("tasks") {
 
   def startDate = column[Time]("start_date")
 
-  def * = id.? ~ name ~ startDate <>(Task, Task.unapply(_))
+  def running = column[Boolean]("running")
+
+  def * = id.? ~ name ~ startDate ~ running  <>(Task, Task.unapply(_))
 
   def count = {
     dataBase withSession {
@@ -30,5 +32,5 @@ object Tasks extends Table[Task]("tasks") {
 
 }
 
-case class Task(id: Option[Int], name: String, startDate: Time)
+case class Task(id: Option[Int], name: String, startDate: Time , running: Boolean)
 

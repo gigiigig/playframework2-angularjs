@@ -1,12 +1,5 @@
-window.TimeController = ($scope , $timeout) ->
-  getTime($scope)
-  $timeout((
-    update = ->
-      getTime($scope)
-      $timeout(update , 1000)
-    ), 1000)
-
 window.TaskController = ($scope , $http , $timeout) ->
+
   updateList = ->
     $http.get("/task/").success((data) ->
       $scope.tasks = data
@@ -14,35 +7,41 @@ window.TaskController = ($scope , $http , $timeout) ->
 
   updateList()
 
+  $scope.start = (task) ->
+    task.running = true
+
+  $scope.stop = (task) ->
+    task.running = false
+
   $scope.add = ->
-    $http.post("/task/" , $scope.task).success( ->
-      $scope.message = "saved"
+    $scope.update()
+    $http.post("/task/" , $scope.task).success((data) ->
+      showMessage(data)
       updateList()
     )
 
-  $scope.start = (task) ->
-    task.started = true
-
-  $scope.stop = (task) ->
-    task.started = false
-
   $scope.delete = (task) ->
-    $http.delete("/task/#{task.id}").success( ->
-      $scope.message = "deleted task #{task.id}"
+    $scope.update()
+    $http.delete("/task/#{task.id}").success((data) ->
+      showMessage(data)
       updateList()
     )
 
   $scope.update = ->
     $http.put("/task/" , $scope.tasks).success((data) ->
-      $scope.message = data
+      showMessage(data)
     )
-
 
   $timeout(increase = ->
     for t in $scope.tasks
-      if(t.started) then t.startDate += 1000
+      if(t.running) then t.startDate += 1000
     $timeout(increase , 1000)
   ,1000)
+
+  showMessage = (data) ->
+    $scope.message = data
+    $timeout(( -> $scope.message = null), 3000)
+
 
 window.angular.module('myFilters' , []).filter('timer' , ->
   (input) ->

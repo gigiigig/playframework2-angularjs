@@ -20,7 +20,13 @@
         </thead>
         <tbody>
             <tr ng-repeat="task in tasks">
-                <td class="span4">{{task.name}}</td>
+                <td class="span4">
+                    <div ng-hide="task.edit" ng-Dblclick="task.edit=true">{{task.name}}</div>
+                    <div ng-show="task.edit" class="input-append">
+                        <input type="text" ng-model="task.name">
+                        <button ng-click="update();task.edit=false" class="btn"><i class="icon-ok"></i></button>
+                    </div>
+                </td>
 
                 <td class="span4">{{task.startDate | timer}}</td>
 
