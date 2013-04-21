@@ -27,9 +27,11 @@ window.TaskController = ($scope , $http , $timeout) ->
       updateList()
     )
 
-  $scope.update = ->
+  $scope.update = (callback) ->
     $http.put("/task/" , $scope.tasks).success((data) ->
       showMessage(data)
+      if(callback)
+        callback()
     )
 
   $scope.prepareTimeEdit = (task) ->
@@ -39,8 +41,7 @@ window.TaskController = ($scope , $http , $timeout) ->
 
   $scope.updateTime = (task) ->
     task.startDate = toTime(parseInt(task.hours), parseInt(task.minutes), parseInt(task.seconds))
-    $scope.update()
-    updateList()
+    $scope.update( -> updateList())
 
 
   $timeout(increase = ->
@@ -75,7 +76,7 @@ getTime = ($scope) ->
   $scope.time = new Date().getTime()
 
 addZero = (value) ->
-  value = Math.round(value)
+  value = Math.floor(value)
   if(value < 10)
     "0#{value}"
   else
