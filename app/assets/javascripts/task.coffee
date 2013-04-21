@@ -32,6 +32,17 @@ window.TaskController = ($scope , $http , $timeout) ->
       showMessage(data)
     )
 
+  $scope.prepareTimeEdit = (task) ->
+    task.minutes = toMinutes(task.startDate)
+    task.hours = toHours(task.startDate)
+    task.seconds = toSeconds(task.startDate)
+
+  $scope.updateTime = (task) ->
+    task.startDate = toTime(parseInt(task.hours), parseInt(task.minutes), parseInt(task.seconds))
+    $scope.update()
+    updateList()
+
+
   $timeout(increase = ->
     for t in $scope.tasks
       if(t.running) then t.startDate += 1000
@@ -45,17 +56,44 @@ window.TaskController = ($scope , $http , $timeout) ->
 
 window.angular.module('myFilters' , []).filter('timer' , ->
   (input) ->
-    seconds=addZero((input/1000)%60)
-    minutes=addZero((input/(1000*60))%60)
-    hours=addZero((input/(1000*60*60))%24)
+    seconds=toSeconds(input)
+    minutes=toMinutes(input)
+    hours=toHours(input)
     "#{hours}:#{minutes}:#{seconds}"
+).filter('seconds', ->
+  (input) ->
+    addZero((input/1000)%60)
+).filter('minutes', ->
+  (input) ->
+    addZero((input/(1000*60))%60)
+).filter('hours', ->
+  (input) ->
+    addZero((input/(1000*60*60))%24)
 )
 
 getTime = ($scope) ->
   $scope.time = new Date().getTime()
 
 addZero = (value) ->
+  value = Math.round(value)
   if(value < 10)
-    "0#{Math.round(value)}"
+    "0#{value}"
   else
     value
+
+toHours = (time) ->
+  addZero((time/(1000*60*60))%24)
+toMinutes = (time) ->
+  addZero((time/(1000*60))%60)
+toSeconds = (time) ->
+  addZero((time/1000)%60)
+
+toTime = (hours,minutes,seconds) ->
+  console.debug("hours : " + hours)
+  console.debug("minutes : " + minutes)
+  console.debug("seconds : " + seconds)
+
+  toret = ((hours * 60 * 60) + (minutes * 60) + seconds) * 1000
+  console.debug("toTime : " + toret)
+
+  toret

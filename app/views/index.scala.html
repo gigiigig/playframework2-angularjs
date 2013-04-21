@@ -28,7 +28,17 @@
                     </div>
                 </td>
 
-                <td class="span4">{{task.startDate | timer}}</td>
+                <td class="span4">
+                    <div ng-hide="task.editTime" ng-Dblclick="prepareTimeEdit(task);task.editTime=true">{{task.startDate | timer}}</div>
+                    <div ng-show="task.editTime">
+                        <div class="input-append input-prepend">
+                            <input type="text" class="input-mini" ng-model="task.hours">
+                            <input type="text" class="input-mini" ng-model="task.minutes">
+                            <input type="text" class="input-mini" ng-model="task.seconds">
+                            <button ng-click="updateTime(task);task.editTime=false" class="btn"><i class="icon-ok"></i></button>
+                        </div>
+                    </div>
+                </td>
 
                 <td class="span4">
                     <button ng-click="start(task)" class="btn"><i class="icon-play"></i></button>
@@ -40,12 +50,12 @@
     </table>
 
     <div class="row">
-        <p class="span1">name : </p>
-        <input class="span3" type="text" ng-model="task.name">
-        <button ng-click="add()" class="btn btn-primary">Add</button>
+        <div class="form-inline">
+            <p class="span1">name : </p>
+            <input class="span3" type="text" ng-model="task.name">
+            <button ng-click="add()" class="btn btn-primary">Add</button>
+        </div>
     </div>
-
-    <button ng-click="update()" >Update</button>
 
 </div>
 
