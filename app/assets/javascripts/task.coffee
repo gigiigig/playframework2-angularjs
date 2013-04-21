@@ -21,10 +21,12 @@ window.TaskController = ($scope , $http , $timeout) ->
     )
 
   $scope.delete = (task) ->
-    $scope.update()
-    $http.delete("/task/#{task.id}").success((data) ->
-      showMessage(data)
-      updateList()
+    showDeleteConfirm(task, ->
+      $scope.update()
+      $http.delete("/task/#{task.id}").success((data) ->
+        showMessage(data)
+        updateList()
+      )
     )
 
   $scope.update = (callback) ->
@@ -98,3 +100,12 @@ toTime = (hours,minutes,seconds) ->
   console.debug("toTime : " + toret)
 
   toret
+
+showDeleteConfirm = (task,callback) ->
+  $('#deleteConfirm').confirmModal(
+    {
+      heading: "Warning",
+      body: "Are you sure to delete task #{task.name}",
+      callback: callback
+    }
+  );
