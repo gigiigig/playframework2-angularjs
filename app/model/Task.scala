@@ -16,21 +16,29 @@ object Tasks extends Table[Task]("tasks") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
+  def userId = column[Int]("user_id")
+
   def name = column[String]("name")
 
   def startDate = column[Time]("start_date")
 
   def running = column[Boolean]("running")
 
-  def * = id.? ~ name ~ startDate ~ running  <>(Task, Task.unapply(_))
+  def * = id.? ~ userId.? ~ name ~ startDate ~ running <>(Task, Task.unapply(_))
 
-  def count = {
+  def count: Int = {
     dataBase withSession {
       (for (t <- Tasks) yield t.length).first
     }
   }
 
+  def findByUser(userId: Int): List[Task] = {
+    dataBase withSession {
+      (for (t <- Tasks if t.userId === userId) yield t) list
+    }
+  }
+
 }
 
-case class Task(id: Option[Int], name: String, startDate: Time , running: Boolean)
+  case class Task(id: Option[Int], userId: Option[Int], name: String, startDate: Time, running: Boolean)
 

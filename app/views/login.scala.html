@@ -1,0 +1,71 @@
+@(loginForm: Form[(String,String)],registerForm: Form[(String,String,String)])(implicit flash: Flash)
+
+@main("Our first play app" , None) {
+<div class="row">
+
+    @flash.get("success").map { message =>
+    <p class="success">
+        @message
+    </p>
+    }
+
+    <div class="span6">
+
+        @helper.form(routes.AuthController.authenticate) {
+
+
+        <h1>Sign in</h1>
+
+        @loginForm.globalError.map { error =>
+        <p class="error">
+            @error.message
+        </p>
+        }
+
+        <p>
+            <input type="email" name="email" placeholder="Email" value="@loginForm(" email").value">
+        </p>
+
+        <p>
+            <input type="password" name="password" placeholder="Password">
+        </p>
+
+        <p>
+            <button class="btn" type="submit">Login</button>
+        </p>
+
+
+        }
+    </div>
+
+    <div class="span6">
+        @helper.form(routes.AuthController.register) {
+
+        <h1>Register</h1>
+
+        @registerForm.globalError.map { error =>
+        <p class="error">
+            @error.message
+        </p>
+        }
+
+        <p>
+            <input type="email" name="email" placeholder="Email" value="@registerForm(" email").value">
+        </p>
+
+        <p>
+            <input type="password" name="password" placeholder="Password">
+        </p>
+
+        <p>
+            <input type="password" name="password2" id="password2" placeholder="Password">
+        </p>
+
+        <p>
+            <button class="btn" type="submit">Register</button>
+        </p>
+
+        }
+    </div>
+</div>
+}

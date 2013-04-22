@@ -109,7 +109,7 @@ showDeleteConfirm = (task,callback) ->
   $('#deleteConfirm').confirmModal(
     {
       heading: "Warning",
-      body: "Are you sure to delete task #{task.name}",
+      body: "Are you sure to delete task #{task.name} ?",
       callback: callback
     }
   );

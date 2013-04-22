@@ -18,7 +18,7 @@ import misc.Util._
 import misc.Loggable
 import slick.lifted
 
-object TaskController extends Controller with Loggable {
+object TaskController extends Controller with Secured with Loggable {
 
   def timeMillis = Calendar.getInstance().getTimeInMillis
 
@@ -28,28 +28,30 @@ object TaskController extends Controller with Loggable {
       (__ \ "name").write[String] ~
       (__ \ "startDate").write[Time] ~
       (__ \ "running").write[Boolean]
-    )(unlift(Task.unapply))
+    )(t => (t.id, t.name, t.startDate, t.running))
 
-  def index = Action {
-    Ok(views.html.index())
+  def index = withUser {
+    user => implicit request =>
+      Ok(views.html.index(Some(user)))
   }
 
-  def list = Action {
-    dataBase withSession {
-      val result = for {
-        t <- Tasks
-      } yield (t)
-      Ok(Json.toJson(result.sortBy(t => t.id.desc).list()))
-    }
+  def list = withUser {
+    user => implicit request =>
+      dataBase withSession {
+        val result = for {
+          t <- Tasks
+        } yield (t)
+        Ok(Json.toJson(result.sortBy(t => t.id.desc).list()))
+      }
   }
 
-  def add = Action(parse.json) {
+  def add = withJsonUser {
+    user => implicit request =>
 
-    implicit val readNewTask =
-      ((__ \ "name").read[String]).
-        map(v => Task(None, v, new Time(0) ,false))
+      implicit val readNewTask =
+        ((__ \ "name").read[String]).
+          map(v => Task(None, None, v, new Time(0), false))
 
-    implicit request =>
       request.body.validate[Task].fold(
         valid = {
           t =>
@@ -74,16 +76,16 @@ object TaskController extends Controller with Loggable {
     }
   }
 
-  def update = Action(parse.json) {
+  def update = withJsonUser {
+    user => implicit request =>
 
-    implicit val readTask =
-      (((__ \ "id").read[Option[Int]] ~
-        (__ \ "name").read[String] ~
-        (__ \ "startDate").read[Int] ~
-        (__ \ "running").read[Boolean]
-        tupled)).map(v => Task(v._1, v._2, new Time(v._3) , v._4))
+      implicit val readTask =
+        (((__ \ "id").read[Option[Int]] ~
+          (__ \ "name").read[String] ~
+          (__ \ "startDate").read[Int] ~
+          (__ \ "running").read[Boolean]
+          tupled)).map(v => Task(v._1, None, v._2, new Time(v._3), v._4))
 
-    implicit request =>
       request.body.validate[Seq[Task]].fold(
         valid = {
           tasks =>

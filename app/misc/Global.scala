@@ -2,7 +2,7 @@ package misc
 
 import java.sql.{Time, Date}
 import java.util.Calendar
-import model.{Tasks, Task}
+import model.{User, Users, Tasks, Task}
 import play.api._
 import util.{Failure, Try, Success}
 
@@ -32,7 +32,7 @@ object Global extends GlobalSettings with Loggable {
       // thread as the threadLocalSession that we imported
 
       // Create the tables, including primary and foreign keys
-      Try(Tasks.ddl.create) match {
+      Try((Tasks.ddl ++ Users.ddl) create) match {
         case Success(tab) => log.debug(s"database created ${tab}")
         case Failure(ex) => log.warn(s"database creation error ${ex}")
       }
@@ -41,10 +41,13 @@ object Global extends GlobalSettings with Loggable {
       Query(Query(Tasks).length).first match {
 
         case 0 =>
+
+          Users.insert(User(Some(1), "l@i.it", "123", new Date(Calendar.getInstance.getTimeInMillis)))
+
           Tasks.insertAll(
-            (Task(None, "task 1", new Time(0), false)),
-            (Task(None, "task 2", new Time(0), false)),
-            (Task(None, "task 3", new Time(0), false))
+            (Task(None, Some(1), "task 1", new Time(0), false)),
+            (Task(None, Some(1), "task 2", new Time(0), false)),
+            (Task(None, Some(1), "task 3", new Time(0), false))
           )
 
         case _ => Logger.logger.debug("tasks already exist")
