@@ -1,5 +1,13 @@
 @(loginForm: Form[(String,String)],registerForm: Form[(String,String,String)])(implicit flash: Flash)
 
+@formErrors(errors: Seq[FormError]) = {
+    @errors.map { e =>
+        <p class="error">
+            @Messages(e.message , Messages(e.key))
+        </p>
+    }
+}
+
 @main("Our first play app" , None) {
 <div class="row">
 
@@ -43,14 +51,10 @@
 
         <h1>Register</h1>
 
-        @registerForm.globalError.map { error =>
-        <p class="error">
-            @error.message
-        </p>
-        }
+        @formErrors(registerForm.errors)
 
         <p>
-            <input type="email" name="email" placeholder="Email" value="@registerForm(" email").value">
+            <input type="email" name="email" placeholder="Email" value="@registerForm("email").value">
         </p>
 
         <p>

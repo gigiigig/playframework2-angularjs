@@ -12,6 +12,7 @@ import java.util.Calendar
 import java.sql.Date
 import scala.slick.driver.H2Driver.simple._
 import Database.threadLocalSession
+import misc.Loggable
 
 
 /**
@@ -21,7 +22,7 @@ import Database.threadLocalSession
  * Time: 10:13
  * To change this template use File | Settings | File Templates.
  */
-object AuthController extends Controller {
+object AuthController extends Controller with Loggable {
 
   val loginForm = Form(
     tuple(
@@ -34,11 +35,11 @@ object AuthController extends Controller {
 
   val registerForm = Form(
     tuple(
-      "email" -> text,
-      "password" -> text,
-      "password2" -> text
-    ) verifying("Invalid email or password", result => result match {
-      case (email, password, password2) => true
+      "email" -> email,
+      "password" -> nonEmptyText,
+      "password2" -> nonEmptyText
+    ) verifying("Passwords not correspond", result => result match {
+      case (email, password, password2) => password == password2
     })
   )
 
@@ -63,11 +64,13 @@ object AuthController extends Controller {
   def register = Action {
     implicit request =>
       registerForm.bindFromRequest.fold(
-        registerFormWithErrors => BadRequest(views.html.login(loginForm, registerFormWithErrors)),
+        registerFormWithErrors => {
+          BadRequest(views.html.login(loginForm, registerFormWithErrors))
+        },
         formData =>
           dataBase withSession {
-            Users.insert(User(None , formData._1 , formData._2 ,
-              new Date(Calendar.getInstance.getTimeInMillis)) )
+            Users.insert(User(None, formData._1, formData._2,
+              new Date(Calendar.getInstance.getTimeInMillis)))
             Redirect(routes.TaskController.index).withSession(Security.username -> formData._1)
           }
       )
