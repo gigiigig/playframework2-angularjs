@@ -40,6 +40,7 @@ object TaskController extends Controller with Secured with Loggable {
       dataBase withSession {
         val result = for {
           t <- Tasks
+          if (t.userId === user.id)
         } yield (t)
         Ok(Json.toJson(result.sortBy(t => t.id.desc).list()))
       }
@@ -50,7 +51,7 @@ object TaskController extends Controller with Secured with Loggable {
 
       implicit val readNewTask =
         ((__ \ "name").read[String]).
-          map(v => Task(None, None, v, new Time(0), false))
+          map(v => Task(None, user.id, v, new Time(0), false))
 
       request.body.validate[Task].fold(
         valid = {
@@ -94,9 +95,12 @@ object TaskController extends Controller with Secured with Loggable {
               tasks.foreach {
                 task =>
                   log.debug(s"task ${task.name} have time ${task.startDate}")
-                  (for (t <- Tasks if t.id === task.id) yield t.startDate).update(task.startDate)
-                  (for (t <- Tasks if t.id === task.id) yield t.running).update(task.running)
-                  (for (t <- Tasks if t.id === task.id) yield t.name).update(task.name)
+                  (for (t <- Tasks if t.id === task.id && t.userId === user.id)
+                  yield t.startDate).update(task.startDate)
+                  (for (t <- Tasks if t.id === task.id && t.userId === user.id)
+                  yield t.running).update(task.running)
+                  (for (t <- Tasks if t.id === task.id && t.userId === user.id)
+                  yield t.name).update(task.name)
               }
               Ok("Tasks Updated")
             }
